@@ -1,3 +1,4 @@
+#Abstract class from which specific hypervisor types will inherit.
 from abc import ABCMeta, abstractmethod
 
 class Hypervisor(object):
