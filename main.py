@@ -8,6 +8,9 @@ import argparse
 Main script that uses appropriate objects to start and destroy VMs and network topologies between them.
 """
 
+"""
+Directory to look for iso files and directory to create disk images respectively
+"""
 iso_dir = 'iso_dir'
 work_dir = 'working_dir'
 
@@ -23,7 +26,10 @@ def start_bridges(bridge_type, connections):
     
     for key in connections:
         mod(key).add_bridge()
-    
+
+"""
+Function to be called if clean is the positional argument. Destroys networks and VMs created.
+"""
 def cleanup():
     f = open('conf/resources.json','r')
     data = json.load(f)
@@ -49,6 +55,10 @@ def cleanup():
     hyp.destroy_networks()
     hyp.destroy_vms()
 
+"""
+Main function that checks if bridge type and hypervisor type are valid, and proceeds to call the appropriate objects
+and functions to create VMs and the network topology between them.
+"""
 def main():
     f = open('conf/config.json','r')
     f2 = open('conf/options.json', 'r')
@@ -100,6 +110,10 @@ def main():
             if endp['name'] in vm_obj_dict.keys():
                 vm_obj_dict[endp['name']].fill_connection(endp,conn_name)
     
+    """
+    Resources file is where everything created, like bridges and VMs are written to. This is used while cleaning
+    up
+    """
     f = open('conf/resources.json','w')
     writable = []
     writable.append({'bridges':[bridge_type]})
@@ -141,9 +155,7 @@ def main():
 
 parser = argparse.ArgumentParser()
 parser.add_argument("action", help="Action to be taken, Options are:\n"+
-                    "'start', 'clean', 'console'")
-parser.add_argument("--name", help="VM name to connect to if console"+\
-                    " option is specified")
+                    "'start', 'clean'")
 
 args = parser.parse_args()
 
@@ -151,4 +163,3 @@ if args.action == 'start':
     main()
 elif args.action == 'clean':
     cleanup() 
-
