@@ -1,0 +1,14 @@
+[
+    {
+        "COMMON": 
+            {
+                "BRIDGES": [
+                "LinuxBridge",
+                "OVSBridge"
+            ],
+                "HYPERVISOR": [
+                "KVM"
+            ]
+            }
+    }
+]
