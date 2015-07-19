@@ -1,5 +1,8 @@
 # kvm_network_initializer
 
-This is a script that will look at a config file that is specified, by default in conf/config.json and create the KVM image files for all the virtual machine types specified in the config file, while checking if the iso files are present as necessary in the appropriate directory. There are two types of virtual machines, switchvm and hostvm. 
+This is a tool that will look at a config file that is specified in conf/config.json and create the KVM image files for all the virtual machine types specified in the config file, while checking if the iso files are present as necessary in the appropriate directory. If a VMDK file is present in the iso directory, it is used as the 
+disk image for that VM instead of a blank qemu image. A choice of bridge is also available in the config file, and you can either use a Linux Bridge or an OpenVSwitch bridge.
 
-  Then, looking at the connections section of the config file, it will create networks between these virtual machines using the 'virsh' commands of KVM.
+Usage: ./main.py start :for starting VMs and the networks between them.
+       ./main.py clean :for destroying networks and VMs.
+
