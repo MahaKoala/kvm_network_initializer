@@ -1,6 +1,11 @@
 import subprocess
 import os
 
+"""
+Class that represents a virtual machine in the system. Contains attributes that are filled from the config JSON 
+file. This object is invoked for every VM dictionary in the JSON config file.
+"""
+
 class VM(object):
     def __init__(self, vm_dict, iso_dir, work_dir):
         self.name = vm_dict['name']
