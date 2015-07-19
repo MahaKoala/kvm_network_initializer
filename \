@@ -1,0 +1,25 @@
+class VM(object):
+    def __init__(self):
+        self.name = ''
+        self.version = ''
+        self.port_list = {}
+        self.extra_commands = {}
+        self.connection_dict = {}
+        self.console = ''
+        self.disk = ''
+
+    def fill_from_dict(self, vm_dict):
+        self.name = vm_dict['name']
+        self.version = vm_dict['version']
+        self.port_list = vm_dic['port_list']
+        self.extra_commands = vm_dict['extra_commands']
+        self.console = vm['console']
+        
+        for i in xrange(self.port_list['start_port'],\
+                (self.port_list['end_port'] + 1)):
+            if i == 0:
+                self.connection_dict[i] = 'mgmt'
+
+            else:
+                self.connection_dict[i] = 'dummy'
+              
