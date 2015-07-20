@@ -9,6 +9,13 @@
        
     },
     {
+        "BRIDGE_NAMES":
+            {
+                "mgmt":"cust_management",
+                "dummy":"cust_dummy"
+            }
+    },
+    {
         "VMS":  [
             {
                 "name": "ubuntua",
