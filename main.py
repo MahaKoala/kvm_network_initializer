@@ -4,32 +4,22 @@ import json
 from vm import VM
 import argparse
 
-"""
-Main script that uses appropriate objects to start and destroy VMs and network topologies between them.
-"""
-
-"""
-Directory to look for iso files and directory to create disk images respectively
-"""
 iso_dir = 'iso_dir'
 work_dir = 'working_dir'
 
-def start_bridges(bridge_type, connections):
+def start_bridges(bridge_type, connections, br_names):
     """
     Import the bridge which is specified in the config file using getattr
     """
     mod = __import__('subbridges')
     mod = getattr(mod,bridge_type)
     
-    mod('mgmt').add_bridge()
-    mod('dummy').add_bridge()
+    mod(br_names['mgmt']).add_bridge()
+    mod(br_names['dummy']).add_bridge()
     
     for key in connections:
         mod(key).add_bridge()
-
-"""
-Function to be called if clean is the positional argument. Destroys networks and VMs created.
-"""
+    
 def cleanup():
     f = open('conf/resources.json','r')
     data = json.load(f)
@@ -55,10 +45,6 @@ def cleanup():
     hyp.destroy_networks()
     hyp.destroy_vms()
 
-"""
-Main function that checks if bridge type and hypervisor type are valid, and proceeds to call the appropriate objects
-and functions to create VMs and the network topology between them.
-"""
 def main():
     f = open('conf/config.json','r')
     f2 = open('conf/options.json', 'r')
@@ -69,6 +55,7 @@ def main():
     bridge_list = hypervisor_list = []
     vm_list = []
     connections = {}
+    br_names = {}
 
     for dic in data2:
         if 'COMMON' in dic.keys():
@@ -98,28 +85,29 @@ def main():
 
         if 'CONNECTIONS' in dic.keys():
             connections = dic['CONNECTIONS']
+
+        if 'BRIDGE_NAMES' in dic.keys():
+            br_names = dic["BRIDGE_NAMES"]
     
     vm_obj_dict = {}
     
     for i in xrange(len(vm_list)):
-        vm_obj_dict[vm_list[i]['name']] = (VM(vm_list[i],iso_dir,work_dir))
+        vm_obj_dict[vm_list[i]['name']] = \
+            (VM(vm_list[i],iso_dir,work_dir, br_names))
 
     for key in connections:
         conn_name = key
         for endp in connections[key]:
             if endp['name'] in vm_obj_dict.keys():
-                vm_obj_dict[endp['name']].fill_connection(endp,conn_name)
+                vm_obj_dict[endp['name']].fill_connection\
+                (endp,conn_name, br_names)
     
-    """
-    Resources file is where everything created, like bridges and VMs are written to. This is used while cleaning
-    up
-    """
     f = open('conf/resources.json','w')
     writable = []
     writable.append({'bridges':[bridge_type]})
     writable.append({"hypervisor":hypervisor_type})
 
-    writable[0]['bridges'].extend(['mgmt', 'dummy'])
+    writable[0]['bridges'].extend([br_names['mgmt'], br_names['dummy']])
     for key in connections:
         writable[0]['bridges'].append({key:connections[key]})
     
@@ -130,7 +118,7 @@ def main():
     HyperVisor = getattr(HyperVisor, hypervisor_type)
 
     hyp = HyperVisor()
-    start_bridges(bridge_type, connections)
+    start_bridges(bridge_type, connections, br_names)
     hyp.start_networks(bridge_type)
     
     vm_obj_list = [vm_obj_dict[key] for key in vm_obj_dict]
@@ -155,7 +143,9 @@ def main():
 
 parser = argparse.ArgumentParser()
 parser.add_argument("action", help="Action to be taken, Options are:\n"+
-                    "'start', 'clean'")
+                    "'start', 'clean', 'console'")
+parser.add_argument("--name", help="VM name to connect to if console"+\
+                    " option is specified")
 
 args = parser.parse_args()
 
@@ -163,3 +153,4 @@ if args.action == 'start':
     main()
 elif args.action == 'clean':
     cleanup() 
+
